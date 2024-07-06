@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payaza.integration.model.DynamicVirtualPayload;
 import com.payaza.integration.service.VirtualAccountService;
 
+@Service
 public class VirtualAccountServiceImpl implements VirtualAccountService {
 
     private final RestTemplate restTemplate;
