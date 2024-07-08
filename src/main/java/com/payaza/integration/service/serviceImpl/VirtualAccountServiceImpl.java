@@ -10,22 +10,16 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.payaza.integration.model.DynamicVirtualPayload;
+import com.payaza.integration.model.ServicePayloadWrapper;
 import com.payaza.integration.service.VirtualAccountService;
 
 @Service
 public class VirtualAccountServiceImpl implements VirtualAccountService {
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
 
-    public VirtualAccountServiceImpl(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public VirtualAccountServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
-
     }
 
     @Value("${payaza.url.createDynamicVirtual}")
@@ -35,26 +29,20 @@ public class VirtualAccountServiceImpl implements VirtualAccountService {
     private String key;
 
     @Override
-    public ResponseEntity<String> createDynamicVirtual(DynamicVirtualPayload payload) {
+    public ResponseEntity<String> createDynamicVirtual(ServicePayloadWrapper payload) {
 
         return new ResponseEntity<>(createVirtual(payload), HttpStatusCode.valueOf(200));
 
     }
 
-    private String createVirtual(DynamicVirtualPayload payload) {
+    private String createVirtual(ServicePayloadWrapper payload) {
 
-        String requestBodyJson = "";
-        try {
-            requestBodyJson = objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Payaza " + encodeToBase64(key));
+        headers.set("Content-Type", "application/json");
         headers.set("X-TenantID", "live");
 
-        HttpEntity<String> entity = new HttpEntity<>(requestBodyJson, headers);
+        HttpEntity<ServicePayloadWrapper> entity = new HttpEntity<>(payload, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
